@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -36,7 +37,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap mMap;
     private BottomSheetBehavior bottomSheetBehavior;
@@ -197,7 +198,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         //getting location from network provider
-        location = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        location = locationManager.getLastKnownLocation(provider);
 
         //requesting location from gps service
         locationManager.requestLocationUpdates(provider, 400, 1, this);
