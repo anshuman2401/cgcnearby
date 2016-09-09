@@ -101,8 +101,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
 
-                jumpToLocation();
+                if(location!=null){
 
+                    onLocationChanged(location);
+
+                }else {
+
+                    jumpToLocation();
+                }
             }
         });
 
@@ -197,11 +203,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        //getting location from network provider
-        location = locationManager.getLastKnownLocation(provider);
-
         //requesting location from gps service
         locationManager.requestLocationUpdates(provider, 400, 1, this);
+
+        //requesting location from gps service
+        locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 400, 1, this);
+
+        //getting location from network provider
+        location = locationManager.getLastKnownLocation(provider);
 
         //if location is available go to method onLocationChanged
         if(location!=null){
@@ -210,8 +219,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }else {
 
+            //requesting location from gps service
+            locationManager.requestLocationUpdates(provider, 400, 1, this);
+
+            //requesting location from gps service
+            locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 400, 1, this);
+
             //if location is not available
-            Toast.makeText(MapsActivity.this, "Didn't get any location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MapsActivity.this, "Waiting for location...", Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -219,7 +234,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void addLocationstoList() {
 
         //Showing progress dialog
-        final ProgressDialog dialog = ProgressDialog.show(MapsActivity.this, "", "Getting Locations...", false, false);
+        final ProgressDialog dialog = ProgressDialog.show(MapsActivity.this, "", "Searching for Places...", false, false);
         final StringRequest request = new StringRequest(Request.Method.POST, get_locations, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
