@@ -2,6 +2,8 @@ package com.anshuman.cgcnearby;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,6 +15,8 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -36,8 +40,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private BottomSheetBehavior bottomSheetBehavior;
@@ -50,6 +56,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     final private static String get_locations = "http://www.anshumankaushik.in/cgcnearby/getlocations.php";
     ImageView moreInfoImageVew;
     LatLng latlnginfo;
+    private boolean gps_enabled = false;
+    private boolean network_enabled = false;
+    LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,27 +104,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        ImageView currentImageView = (ImageView)findViewById(R.id.currentImageView);
+        ImageView currentImageView = (ImageView) findViewById(R.id.currentImageView);
 
         currentImageView.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
 
-                if(location!=null){
-
-                    onLocationChanged(location);
-
-                }else {
-
-                    jumpToLocation();
-                }
+                new find().run();
             }
         });
 
         //Getting and saving all location list
         addLocationstoList();
 
+        locationListener = new MyLocationListener();
 
+        locationManager.requestLocationUpdates(provider,100,1,locationListener);
 
     }
 
@@ -129,8 +134,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         marker = mMap.addMarker(new MarkerOptions().position(sydney).title("Getting Location..."));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-        //After setting map get permissions
-        permissionManager();
+                permissionManager();
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -147,7 +151,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onClick(View v) {
 
                         //Showing bottom sheet when more info button is clicked
-                        BottomSheetDialogFragment bottomSheetDialogFragment = new BlankFragment();
+                        BottomSheetDialogFragment bottomSheetDialogFragment = new BottomSheet();
                         bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
 
                         //sending location of marker to fragment
@@ -163,33 +167,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-
-        //set marker to present location
-        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        marker.setPosition(latlng);
-        marker.setTitle("Your Location");
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
     public void jumpToLocation() {
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -203,27 +180,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        //requesting location from gps service
-        locationManager.requestLocationUpdates(provider, 400, 1, this);
-
-        //requesting location from gps service
-        locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 400, 1, this);
-
         //getting location from network provider
-        location = locationManager.getLastKnownLocation(provider);
+         locationListener = new MyLocationListener();
+
+        location = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
 
         //if location is available go to method onLocationChanged
-        if(location!=null){
+        if (location != null) {
 
-            onLocationChanged(location);
+            locationListener.onLocationChanged(location);
 
-        }else {
+        } else {
 
-            //requesting location from gps service
-            locationManager.requestLocationUpdates(provider, 400, 1, this);
-
-            //requesting location from gps service
-            locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 400, 1, this);
+            //requesting location from Network provider
+            locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 400, 1, locationListener);
 
             //if location is not available
             Toast.makeText(MapsActivity.this, "Waiting for location...", Toast.LENGTH_SHORT).show();
@@ -308,6 +278,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
 
+        locationListener = new MyLocationListener();
+
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -319,13 +291,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
         //requesting location from gps
-        locationManager.requestLocationUpdates(provider, 400, 1, this);
+        locationManager.requestLocationUpdates(provider, 400, 1, locationListener);
     }
 
     //called when app minimized
     @Override
     protected void onPause() {
         super.onPause();
+
+        locationListener = new MyLocationListener();
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -339,7 +313,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         //Stop reciving updates
-        locationManager.removeUpdates(this);
+        locationManager.removeUpdates(locationListener);
     }
 
     public void permissionManager() {
@@ -418,4 +392,115 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    class MyLocationListener implements LocationListener {
+
+
+        @Override
+        public void onLocationChanged(Location location) {
+
+            //set marker to present location
+            LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+            marker.setPosition(latlng);
+            marker.setTitle("Your Location");
+
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    }
+
+    public class find extends Thread {
+
+        public find() {
+
+            try {
+                gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch (Exception ex) {
+            }
+
+            try {
+                network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            } catch (Exception ex) {
+            }
+
+            // don't start listeners if no provider is enabled
+            if (!gps_enabled && !network_enabled) {
+                Toast.makeText(getApplicationContext(), "Sorry, location is not determined. Please enable location providers", Toast.LENGTH_LONG).show();
+
+            }
+
+        }
+
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            //super.run();
+            //Looper.prepare();
+        /*if(Looper.myLooper() == null) { // check already Looper is associated or not.
+               Looper.prepare(); // No Looper is defined So define a new one
+            }
+        */
+            locationListener = new MyLocationListener();
+
+            if (gps_enabled) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, locationListener);
+            }
+            if (network_enabled) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 1, locationListener);
+            }
+            //Looper.loop();
+        }
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+
+            case R.id.list_view:
+
+                SharedPreferences sharedPreferences = getSharedPreferences("currentLocation",Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("latitude",String.valueOf(location.getLatitude()));
+                editor.putString("longitude",String.valueOf(location.getLongitude()));
+                editor.commit();
+
+                startActivity(new Intent(MapsActivity.this,LocationsInListView.class));
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
+

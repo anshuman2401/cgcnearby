@@ -2,6 +2,7 @@ package com.anshuman.cgcnearby;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,7 +27,6 @@ public class LocationsInListView extends AppCompatActivity {
     ListView listView;
     private ArrayList<LocationModel> locationList;
     ArrayAdapter arrayAdapter;
-    String currentLat,currentLon;
     final private static String show_location = "http://www.anshumankaushik.in/cgcnearby/showLocationName.php";
 
     @Override
@@ -40,22 +40,16 @@ public class LocationsInListView extends AppCompatActivity {
 
         arrayAdapter = new CustomAdapter(this,locationList);
 
-        Intent i = getIntent();
-        currentLat = i.getStringExtra("latitude");
-        currentLon = i.getStringExtra("longitude");
-
         getLocationNames();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                LocationModel locationModel = locationList.get(position);
+               LocationModel locationModel = locationList.get(position);
 
-                Intent intent = new Intent(LocationsInListView.this,SingleLocationMapActivity.class);
-                intent.putExtra("latitude",locationModel.getLatitude());
-                intent.putExtra("longitude",locationModel.getLongitude());
-                intent.putExtra("name",locationModel.getName());
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                        Uri.parse("http://maps.google.com/maps?daddr="+locationModel.getLatitude()+","+locationModel.getLongitude()));
                 startActivity(intent);
 
             }
@@ -64,6 +58,7 @@ public class LocationsInListView extends AppCompatActivity {
 
     }
 
+    //Getting all locatons names from database and showing them in a list using custom adapter
     public void getLocationNames(){
 
         final ProgressDialog dialog = ProgressDialog.show(LocationsInListView.this,"","Loading...",false,false);

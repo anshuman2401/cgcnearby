@@ -38,6 +38,7 @@ public class CustomAdapter extends ArrayAdapter {
 
         this.locationList = locationList;
 
+        //Getting current postion for subtracting and calculate distance for every location
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("currentLocation",Context.MODE_PRIVATE);
         currentLat= sharedPreferences.getString("latitude","");
         currentLon = sharedPreferences.getString("longitude","");
@@ -78,21 +79,28 @@ public class CustomAdapter extends ArrayAdapter {
 
         LocationModel locationModel = locationList.get(position);
 
+        //Setting name
         holder.locations.setText(locationModel.getName());
 
+        //latitude of locations saved in database
         Double newLat = Double.valueOf(locationModel.getLatitude());
 
+        //longitude.....
         Double newLon = Double.valueOf(locationModel.getLongitude());
 
+        //calculating distance
         String dis = String.valueOf(distance(Double.parseDouble(currentLat),Double.parseDouble(currentLon),newLat,newLon));
 
+        //showing only first 5 numbers
         String subDis = dis.substring(0,5);
 
+        //setting distance text
         holder.distance.setText(subDis+"Km");
 
         return row;
     }
 
+    //Calculation or algo for distance measurements
     private double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = lon1 - lon2;
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));

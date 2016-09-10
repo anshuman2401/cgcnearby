@@ -5,7 +5,7 @@ package com.anshuman.cgcnearby;
  */
 public class LocationModel {
 
-    String name,latitude,longitude;
+    String name,latitude,longitude,id;
 
     public String getLongitude() {
         return longitude;
@@ -29,5 +29,13 @@ public class LocationModel {
 
     public void setLatitude(String latitude) {
         this.latitude = latitude;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

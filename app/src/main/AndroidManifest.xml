@@ -37,6 +37,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".LocationsInListView"
+            android:label="List View"/>
     </application>
 
 </manifest>
