@@ -1,0 +1,29 @@
+[33mcommit eda3868a4ee1c65b18ccae8ca9e6a62cd4ce80e4[m
+Author: Anshuman <anshumankaushik3@gmail.com>
+Date:   Fri Sep 9 17:11:31 2016 +0530
+
+    Now on currentlocation imageview not showing last location going for locationChanged method
+
+[33mcommit fc487de7643829bcf3c6c6f9140a57471ee0ae57[m
+Author: Anshuman <anshumankaushik3@gmail.com>
+Date:   Fri Sep 9 01:06:02 2016 +0530
+
+    Additional information text view color changed
+
+[33mcommit 53f0e074b6b578b6b89b7f3bc5ad223cb4ce2ef6[m
+Author: Anshuman <anshumankaushik3@gmail.com>
+Date:   Fri Sep 9 01:00:20 2016 +0530
+
+    Action bar added and theme changed
+
+[33mcommit ea54a68539ca385cc9e1e575c39da2d4da3635ae[m
+Author: Anshuman <anshumankaushik3@gmail.com>
+Date:   Fri Sep 9 00:51:47 2016 +0530
+
+    Changes undone
+
+[33mcommit caaef0e4f4439ea6c3a0d7618edea8945862aa5f[m
+Author: Anshuman <anshumankaushik3@gmail.com>
+Date:   Thu Sep 8 23:45:32 2016 +0530
+
+    First commit
