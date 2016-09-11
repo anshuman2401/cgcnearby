@@ -11,17 +11,14 @@ import android.location.LocationManager;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -34,14 +31,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -447,13 +440,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         @Override
         public void run() {
-            // TODO Auto-generated method stub
-            //super.run();
-            //Looper.prepare();
-        /*if(Looper.myLooper() == null) { // check already Looper is associated or not.
-               Looper.prepare(); // No Looper is defined So define a new one
-            }
-        */
+
             locationListener = new MyLocationListener();
 
             if (gps_enabled) {
@@ -467,10 +454,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     // for ActivityCompat#requestPermissions for more details.
                     return;
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, locationListener);
             }
             if (network_enabled) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 1, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 1, locationListener);
             }
             //Looper.loop();
         }
@@ -491,13 +478,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case R.id.list_view:
 
-                SharedPreferences sharedPreferences = getSharedPreferences("currentLocation",Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("latitude",String.valueOf(location.getLatitude()));
-                editor.putString("longitude",String.valueOf(location.getLongitude()));
-                editor.commit();
+                Location l = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
 
-                startActivity(new Intent(MapsActivity.this,LocationsInListView.class));
+                if(location==null){
+
+                    Toast.makeText(MapsActivity.this, "Location not available!", Toast.LENGTH_SHORT).show();
+
+                }else {
+                    SharedPreferences sharedPreferences = getSharedPreferences("currentLocation", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("latitude", String.valueOf(l.getLatitude()));
+                    editor.putString("longitude", String.valueOf(l.getLongitude()));
+                    editor.commit();
+
+                    startActivity(new Intent(MapsActivity.this, LocationsInListView.class));
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
