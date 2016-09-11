@@ -459,7 +459,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (network_enabled) {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 1, locationListener);
             }
-            //Looper.loop();
+
         }
 
     }
@@ -478,21 +478,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case R.id.list_view:
 
-                Location l = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+                LatLng latLng = marker.getPosition();
 
-                if(location==null){
+                SharedPreferences sharedPreferences = getSharedPreferences("currentLocation", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("latitude", String.valueOf(latLng.latitude));
+                editor.putString("longitude", String.valueOf(latLng.longitude));
+                editor.commit();
 
-                    Toast.makeText(MapsActivity.this, "Location not available!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MapsActivity.this, LocationsInListView.class));
 
-                }else {
-                    SharedPreferences sharedPreferences = getSharedPreferences("currentLocation", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("latitude", String.valueOf(l.getLatitude()));
-                    editor.putString("longitude", String.valueOf(l.getLongitude()));
-                    editor.commit();
-
-                    startActivity(new Intent(MapsActivity.this, LocationsInListView.class));
-                }
                 return true;
         }
         return super.onOptionsItemSelected(item);

@@ -2,32 +2,14 @@ package com.anshuman.cgcnearby;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.anshuman.cgcnearby.LocationModel;
-import com.anshuman.cgcnearby.MySingleton;
-import com.anshuman.cgcnearby.R;
-import com.google.android.gms.appdatasearch.DocumentId;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Anshuman on 05-09-2016.
@@ -35,10 +17,7 @@ import java.util.Map;
 public class CustomAdapter extends ArrayAdapter {
 
     private ArrayList<LocationModel> locationList;
-    private static String delete_location =  "http://www.anshumankaushik.in/cgcnearby/deletelocation.php";
     String currentLat,currentLon;
-    View bottomSheet;
-    private BottomSheetBehavior bottomSheetBehavior;
 
     public CustomAdapter(Context context, ArrayList<LocationModel> locationList) {
         super(context, R.layout.custom_row, locationList);
@@ -80,31 +59,6 @@ public class CustomAdapter extends ArrayAdapter {
 
             holder.moreInfo = (ImageView)row.findViewById(R.id.moreInfo);
 
-            //Bottom sheet on which info will be displayed
-            bottomSheet = row.findViewById(R.id.bottom_sheet);
-
-            //Bottom sheet behavior is checking for bottomsheet
-            bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-
-            //starting height for bottom sheet
-            bottomSheetBehavior.setPeekHeight(0);
-
-            //Starting state of bottom sheet
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
-            bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-                @Override
-                public void onStateChanged(View bottomSheet, int newState) {
-                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                        bottomSheetBehavior.setPeekHeight(0);
-                        //if bottom sheet is swipped down then make its height to 0
-                    }
-                }
-                @Override
-                public void onSlide(View bottomSheet, float slideOffset) {
-                }
-            });
-
             row.setTag(holder);
 
         }else {
@@ -132,23 +86,6 @@ public class CustomAdapter extends ArrayAdapter {
         //setting distance text
         holder.distance.setText(subDis+"Km");
 
-        holder.moreInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //Showing bottom sheet when more info button is clicked
-                BottomSheetDialogFragment bottomSheetDialogFragment = new BottomSheet();
-                bottomSheetDialogFragment.show(((AppCompatActivity)getContext()).getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
-
-                //sending location of marker to fragment
-                Bundle bundle = new Bundle();
-                bundle.putString("latitude", String.valueOf(locationModel.getLatitude()));
-                bundle.putString("longitude", String.valueOf(locationModel.getLongitude()));
-                bottomSheetDialogFragment.setArguments(bundle);
-
-            }
-        });
-
         return row;
     }
 
@@ -170,3 +107,5 @@ public class CustomAdapter extends ArrayAdapter {
     }
 
 }
+
+
