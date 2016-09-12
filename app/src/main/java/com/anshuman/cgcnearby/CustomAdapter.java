@@ -1,6 +1,7 @@
 package com.anshuman.cgcnearby;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,8 @@ public class CustomAdapter extends ArrayAdapter {
 
     private ArrayList<LocationModel> locationList;
     String currentLat,currentLon;
+    private Context context;
+    private LayoutInflater mInflater;
 
     public CustomAdapter(Context context, ArrayList<LocationModel> locationList) {
         super(context, R.layout.custom_row, locationList);
@@ -28,6 +31,8 @@ public class CustomAdapter extends ArrayAdapter {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("currentLocation",Context.MODE_PRIVATE);
         currentLat= sharedPreferences.getString("latitude","");
         currentLon = sharedPreferences.getString("longitude","");
+        this.context = context;
+        mInflater = LayoutInflater.from(context);
 
     }
 
@@ -85,6 +90,18 @@ public class CustomAdapter extends ArrayAdapter {
 
         //setting distance text
         holder.distance.setText(subDis+"Km");
+
+        holder.moreInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(context,Information.class);
+                i.putExtra("latitude",locationModel.getLatitude());
+                i.putExtra("longitude",locationModel.getLongitude());
+                i.putExtra("name",locationModel.getName());
+                context.startActivity(i);
+            }
+        });
 
         return row;
     }

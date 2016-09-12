@@ -30,16 +30,22 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".LocationsInListView"
-            android:label="List View"/>
+        <activity
+            android:name=".LocationsInListView"
+            android:label="List View"
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Information"
+            android:theme="@style/AppThemeNoActionBar"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

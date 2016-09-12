@@ -49,7 +49,7 @@ public class LocationsInListView extends AppCompatActivity {
 
         locationList = new ArrayList<LocationModel>();
 
-        arrayAdapter = new CustomAdapter(this,locationList);
+        arrayAdapter = new CustomAdapter(LocationsInListView.this,locationList);
 
         getLocationNames();
 
@@ -70,9 +70,7 @@ public class LocationsInListView extends AppCompatActivity {
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                locationList.clear();
-
-                final ProgressDialog dialog = ProgressDialog.show(LocationsInListView.this,"","Searching...",false,false);
+                 final ProgressDialog dialog = ProgressDialog.show(LocationsInListView.this,"","Searching...",false,false);
                 StringRequest request = new StringRequest(Request.Method.POST, search_location, new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -80,6 +78,8 @@ public class LocationsInListView extends AppCompatActivity {
                         dialog.dismiss();
 
                         try {
+
+                            locationList.clear();
 
                             JSONArray array = new JSONArray(response);
 
@@ -160,6 +160,8 @@ public class LocationsInListView extends AppCompatActivity {
                 dialog.dismiss();
 
                 try {
+
+                    locationList.clear();
 
                     JSONArray array = new JSONArray(response);
 
